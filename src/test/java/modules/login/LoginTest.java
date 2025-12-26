@@ -40,4 +40,30 @@ public class LoginTest {
 
 
     }
+
+    @Test
+    @DisplayName("When using invalid credentials, Then error message displays")
+    void loginWithInvalidCredentials() {
+        //open the browser
+        WebDriverManager.chromedriver().setup();
+        this.driver = new ChromeDriver();
+        this.driver.manage().window().maximize();
+        this.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        this.driver.get("http://165.227.93.41/lojinha-web/v2/");
+
+        //fill username
+        driver.findElement(By.cssSelector("label[for='usuario']")).click();
+        driver.findElement(By.id("usuario")).sendKeys("julio.lima");
+
+        //fill password
+        driver.findElement(By.cssSelector("label[for='senha']")).click();
+        driver.findElement(By.id("senha")).sendKeys("654321");
+
+        //click enter button
+        driver.findElement(By.cssSelector(".btn.waves-effect.waves-light")).click();
+
+        String errorMessage = driver.findElement(By.cssSelector(".rounded")).getText();
+        Assertions.assertEquals("Falha ao fazer o login", errorMessage);
+
+    }
 }
