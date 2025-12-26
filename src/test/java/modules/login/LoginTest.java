@@ -21,7 +21,7 @@ public class LoginTest {
 //        this.driver = new ChromeDriver(options);
         this.driver = new ChromeDriver();
         this.driver.manage().window().maximize();
-        this.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        this.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         this.driver.get("http://165.227.93.41/lojinha-web/v2/");
     }
 
@@ -45,8 +45,8 @@ public class LoginTest {
         driver.findElement(By.cssSelector(".btn.waves-effect.waves-light")).click();
 
         //assert the user is logged in
-        String message = driver.findElement(By.linkText("Boas vindas, Julio de Lima!")).getText();
-        Assertions.assertEquals("Boas vindas, Julio de Lima!", message);
+        String message = driver.findElement(By.linkText("ADICIONAR PRODUTO")).getText();
+        Assertions.assertEquals("ADICIONAR PRODUTO", message);
     }
 
     @Test
