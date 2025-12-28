@@ -5,8 +5,11 @@ import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import pages.LoginPage;
 
 import java.time.Duration;
+import java.util.Map;
 
 @DisplayName("Web tests for the products module")
 public class ProductTest {
@@ -14,13 +17,11 @@ public class ProductTest {
 
     @BeforeEach
     void beforeEach() {
-        //open the browser
         WebDriverManager.chromedriver().setup();
-//        ChromeOptions options = new ChromeOptions();
-//        options.addArguments("--headless");
-//        this.driver = new ChromeDriver(options);
-        this.driver = new ChromeDriver();
-        this.driver.manage().window().maximize();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.setExperimentalOption("prefs", Map.of("profile.password_manager_leak_detection", false));
+        this.driver = new ChromeDriver(options);
         this.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         this.driver.get("http://165.227.93.41/lojinha-web/v2/");
     }
@@ -33,71 +34,38 @@ public class ProductTest {
     @Test
     @DisplayName("When submit a product form with valid data, Then the product is registered")
     void submitProductWithValidData() {
-        //fill username
-        driver.findElement(By.cssSelector("label[for='usuario']")).click();
-        driver.findElement(By.id("usuario")).sendKeys("julio.lima");
+        //Login
+        String toastMessage = new LoginPage(driver)
+                .fillUsername("julio.lima")
+                .fillPassword("123456")
+                .submitLoginFormWithValidData()
+                .clickRegisterProduct()
+                .fillProductName("Playstation 5")
+                .fillProductValue("001")
+                .fillProductColor("silver")
+                .clickSaveButtonWithSuccess()
+                .captureMessage();
 
-        //fill password
-        driver.findElement(By.cssSelector("label[for='senha']")).click();
-        driver.findElement(By.id("senha")).sendKeys("123456");
-
-        //click enter button
-        driver.findElement(By.cssSelector(".btn.waves-effect.waves-light")).click();
-
-        //click add product button
-        driver.findElement(By.linkText("ADICIONAR PRODUTO")).click();
-
-        //fill name
-        driver.findElement(By.id("produtonome")).click();
-        driver.findElement(By.id("produtonome")).sendKeys("Playstation 5");
-
-        //fill value
-        driver.findElement(By.id("produtovalor")).click();
-        driver.findElement(By.id("produtovalor")).sendKeys("001");
-
-        //fill color
-        driver.findElement(By.id("produtocores")).click();
-        driver.findElement(By.id("produtocores")).sendKeys("silver");
-
-        //click salvar button
-        driver.findElement(By.id("btn-salvar")).click();
+        Assertions.assertEquals("Produto adicionado com sucesso", toastMessage);
 
     }
 
     @Test
     @DisplayName("When submit a product form with invalid data, Then error message displays")
     void submitProductWithValueAsZero() {
-        //fill username
-        driver.findElement(By.cssSelector("label[for='usuario']")).click();
-        driver.findElement(By.id("usuario")).sendKeys("julio.lima");
-
-        //fill password
-        driver.findElement(By.cssSelector("label[for='senha']")).click();
-        driver.findElement(By.id("senha")).sendKeys("123456");
-
-        //click enter button
-        driver.findElement(By.cssSelector(".btn.waves-effect.waves-light")).click();
-
-        //click add product button
-        driver.findElement(By.linkText("ADICIONAR PRODUTO")).click();
-
-        //fill name
-        driver.findElement(By.id("produtonome")).click();
-        driver.findElement(By.id("produtonome")).sendKeys("Playstation 5");
-
-        //fill value
-        driver.findElement(By.id("produtovalor")).click();
-        driver.findElement(By.id("produtovalor")).sendKeys("000");
-
-        //fill color
-        driver.findElement(By.id("produtocores")).click();
-        driver.findElement(By.id("produtocores")).sendKeys("silver");
-
-        //click salvar button
-        driver.findElement(By.id("btn-salvar")).click();
+        //Login
+        String errorMessage = new LoginPage(driver)
+                .fillUsername("julio.lima")
+                .fillPassword("123456")
+                .submitLoginFormWithValidData()
+                .clickRegisterProduct()
+                .fillProductName("Playstation 5")
+                .fillProductValue("000")
+                .fillProductColor("silver")
+                .clickSaveButtonWithError()
+                .captureMessage();
 
         //assert error message
-        String errorMessage = driver.findElement(By.cssSelector(".rounded")).getText();
         Assertions.assertEquals("O valor do produto deve estar entre R$ 0,01 e R$ 7.000,00", errorMessage);
 
     }
